@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>Analisis Risiko Kawasan Rawan Gempa Bumi Provinsi Bengkulu</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/GeologiProvinsiBengkulu_7.js"></script>
+        <script src="data/KelerenganProvinsiBengkulu_8.js"></script>
+        <script src="data/StrukturGeologiProvinsiBengkulu_9.js"></script>
+        <script src="data/KegempaanProvinsiBengkulu_10.js"></script>
+        <script src="data/TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11.js"></script>
+        <script src="data/KegempaanBerdasarkanDampak_12.js"></script>
+        <script src="data/Titikgempa_13.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-5.1774497337883965,99.59627558361775],[-1.7783057337883954,105.18224089419796]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topleft'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Analisis Risiko Kawasan Rawan Gempa Bumi Provinsi Bengkulu</h2>';
+        };
+        title.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleTerrain_0');
+        map.getPane('pane_GoogleTerrain_0').style.zIndex = 400;
+        var layer_GoogleTerrain_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleTerrain_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleTerrain_0;
+        map.addLayer(layer_GoogleTerrain_0);
+        map.createPane('pane_GeologiProvinsiBengkulu_1');
+        map.getPane('pane_GeologiProvinsiBengkulu_1').style.zIndex = 401;
+        var img_GeologiProvinsiBengkulu_1 = 'data/GeologiProvinsiBengkulu_1.png';
+        var img_bounds_GeologiProvinsiBengkulu_1 = [[-5.5144268279217865,101.02286107007168],[-2.276771789613976,103.79057046044392]];
+        var layer_GeologiProvinsiBengkulu_1 = new L.imageOverlay(img_GeologiProvinsiBengkulu_1,
+                                              img_bounds_GeologiProvinsiBengkulu_1,
+                                              {pane: 'pane_GeologiProvinsiBengkulu_1'});
+        bounds_group.addLayer(layer_GeologiProvinsiBengkulu_1);
+        map.createPane('pane_KelerenganProvinsiBengkulu_2');
+        map.getPane('pane_KelerenganProvinsiBengkulu_2').style.zIndex = 402;
+        var img_KelerenganProvinsiBengkulu_2 = 'data/KelerenganProvinsiBengkulu_2.png';
+        var img_bounds_KelerenganProvinsiBengkulu_2 = [[-5.514164718,101.022884799],[-2.276878595,103.790439428]];
+        var layer_KelerenganProvinsiBengkulu_2 = new L.imageOverlay(img_KelerenganProvinsiBengkulu_2,
+                                              img_bounds_KelerenganProvinsiBengkulu_2,
+                                              {pane: 'pane_KelerenganProvinsiBengkulu_2'});
+        bounds_group.addLayer(layer_KelerenganProvinsiBengkulu_2);
+        map.createPane('pane_StrukturGeologiProvinsiBengkulu_3');
+        map.getPane('pane_StrukturGeologiProvinsiBengkulu_3').style.zIndex = 403;
+        var img_StrukturGeologiProvinsiBengkulu_3 = 'data/StrukturGeologiProvinsiBengkulu_3.png';
+        var img_bounds_StrukturGeologiProvinsiBengkulu_3 = [[-5.519726290072834,101.00809262211247],[-2.2759324357291795,103.79387101423778]];
+        var layer_StrukturGeologiProvinsiBengkulu_3 = new L.imageOverlay(img_StrukturGeologiProvinsiBengkulu_3,
+                                              img_bounds_StrukturGeologiProvinsiBengkulu_3,
+                                              {pane: 'pane_StrukturGeologiProvinsiBengkulu_3'});
+        bounds_group.addLayer(layer_StrukturGeologiProvinsiBengkulu_3);
+        map.createPane('pane_KegempaanProvinsiBengkulu_4');
+        map.getPane('pane_KegempaanProvinsiBengkulu_4').style.zIndex = 404;
+        var img_KegempaanProvinsiBengkulu_4 = 'data/KegempaanProvinsiBengkulu_4.png';
+        var img_bounds_KegempaanProvinsiBengkulu_4 = [[-5.514495732561292,101.02272632277906],[-2.2766371509595533,103.79070520773654]];
+        var layer_KegempaanProvinsiBengkulu_4 = new L.imageOverlay(img_KegempaanProvinsiBengkulu_4,
+                                              img_bounds_KegempaanProvinsiBengkulu_4,
+                                              {pane: 'pane_KegempaanProvinsiBengkulu_4'});
+        bounds_group.addLayer(layer_KegempaanProvinsiBengkulu_4);
+        map.createPane('pane_KerawananGempaBumiProvinsiBengkulu_5');
+        map.getPane('pane_KerawananGempaBumiProvinsiBengkulu_5').style.zIndex = 405;
+        var img_KerawananGempaBumiProvinsiBengkulu_5 = 'data/KerawananGempaBumiProvinsiBengkulu_5.png';
+        var img_bounds_KerawananGempaBumiProvinsiBengkulu_5 = [[-5.51416,101.02288],[-2.27688,103.79044]];
+        var layer_KerawananGempaBumiProvinsiBengkulu_5 = new L.imageOverlay(img_KerawananGempaBumiProvinsiBengkulu_5,
+                                              img_bounds_KerawananGempaBumiProvinsiBengkulu_5,
+                                              {pane: 'pane_KerawananGempaBumiProvinsiBengkulu_5'});
+        bounds_group.addLayer(layer_KerawananGempaBumiProvinsiBengkulu_5);
+        map.createPane('pane_TingkatRisikoKawasanRawanGempaBumiProvinsi_6');
+        map.getPane('pane_TingkatRisikoKawasanRawanGempaBumiProvinsi_6').style.zIndex = 406;
+        var img_TingkatRisikoKawasanRawanGempaBumiProvinsi_6 = 'data/TingkatRisikoKawasanRawanGempaBumiProvinsi_6.png';
+        var img_bounds_TingkatRisikoKawasanRawanGempaBumiProvinsi_6 = [[-5.519726290072834,101.00809262211247],[-2.2759324357291795,103.79387101423778]];
+        var layer_TingkatRisikoKawasanRawanGempaBumiProvinsi_6 = new L.imageOverlay(img_TingkatRisikoKawasanRawanGempaBumiProvinsi_6,
+                                              img_bounds_TingkatRisikoKawasanRawanGempaBumiProvinsi_6,
+                                              {pane: 'pane_TingkatRisikoKawasanRawanGempaBumiProvinsi_6'});
+        bounds_group.addLayer(layer_TingkatRisikoKawasanRawanGempaBumiProvinsi_6);
+        map.addLayer(layer_TingkatRisikoKawasanRawanGempaBumiProvinsi_6);
+        function pop_GeologiProvinsiBengkulu_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Kelas</th>\
+                        <td>' + (feature.properties['Kelas'] !== null ? autolinker.link(String(feature.properties['Kelas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_GeologiProvinsiBengkulu_7_0(feature) {
+            switch(String(feature.properties['Kelas'])) {
+                case '2':
+                    return {
+                pane: 'pane_GeologiProvinsiBengkulu_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,68,27,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4':
+                    return {
+                pane: 'pane_GeologiProvinsiBengkulu_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,252,245,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_GeologiProvinsiBengkulu_7');
+        map.getPane('pane_GeologiProvinsiBengkulu_7').style.zIndex = 407;
+        map.getPane('pane_GeologiProvinsiBengkulu_7').style['mix-blend-mode'] = 'normal';
+        var layer_GeologiProvinsiBengkulu_7 = new L.geoJson(json_GeologiProvinsiBengkulu_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_GeologiProvinsiBengkulu_7',
+            layerName: 'layer_GeologiProvinsiBengkulu_7',
+            pane: 'pane_GeologiProvinsiBengkulu_7',
+            onEachFeature: pop_GeologiProvinsiBengkulu_7,
+            style: style_GeologiProvinsiBengkulu_7_0,
+        });
+        bounds_group.addLayer(layer_GeologiProvinsiBengkulu_7);
+        function pop_KelerenganProvinsiBengkulu_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Kelas</th>\
+                        <td>' + (feature.properties['Kelas'] !== null ? autolinker.link(String(feature.properties['Kelas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KelerenganProvinsiBengkulu_8_0(feature) {
+            switch(String(feature.properties['Kelas'])) {
+                case '1':
+                    return {
+                pane: 'pane_KelerenganProvinsiBengkulu_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(8,48,107,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '2':
+                    return {
+                pane: 'pane_KelerenganProvinsiBengkulu_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(115,178,216,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3':
+                    return {
+                pane: 'pane_KelerenganProvinsiBengkulu_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,251,255,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_KelerenganProvinsiBengkulu_8');
+        map.getPane('pane_KelerenganProvinsiBengkulu_8').style.zIndex = 408;
+        map.getPane('pane_KelerenganProvinsiBengkulu_8').style['mix-blend-mode'] = 'normal';
+        var layer_KelerenganProvinsiBengkulu_8 = new L.geoJson(json_KelerenganProvinsiBengkulu_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KelerenganProvinsiBengkulu_8',
+            layerName: 'layer_KelerenganProvinsiBengkulu_8',
+            pane: 'pane_KelerenganProvinsiBengkulu_8',
+            onEachFeature: pop_KelerenganProvinsiBengkulu_8,
+            style: style_KelerenganProvinsiBengkulu_8_0,
+        });
+        bounds_group.addLayer(layer_KelerenganProvinsiBengkulu_8);
+        function pop_StrukturGeologiProvinsiBengkulu_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Kelas</th>\
+                        <td>' + (feature.properties['Kelas'] !== null ? autolinker.link(String(feature.properties['Kelas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_StrukturGeologiProvinsiBengkulu_9_0(feature) {
+            switch(String(feature.properties['Kelas'])) {
+                case '1':
+                    return {
+                pane: 'pane_StrukturGeologiProvinsiBengkulu_9',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(153,52,4,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '2':
+                    return {
+                pane: 'pane_StrukturGeologiProvinsiBengkulu_9',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,153,41,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4':
+                    return {
+                pane: 'pane_StrukturGeologiProvinsiBengkulu_9',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,212,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_StrukturGeologiProvinsiBengkulu_9');
+        map.getPane('pane_StrukturGeologiProvinsiBengkulu_9').style.zIndex = 409;
+        map.getPane('pane_StrukturGeologiProvinsiBengkulu_9').style['mix-blend-mode'] = 'normal';
+        var layer_StrukturGeologiProvinsiBengkulu_9 = new L.geoJson(json_StrukturGeologiProvinsiBengkulu_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_StrukturGeologiProvinsiBengkulu_9',
+            layerName: 'layer_StrukturGeologiProvinsiBengkulu_9',
+            pane: 'pane_StrukturGeologiProvinsiBengkulu_9',
+            onEachFeature: pop_StrukturGeologiProvinsiBengkulu_9,
+            style: style_StrukturGeologiProvinsiBengkulu_9_0,
+        });
+        bounds_group.addLayer(layer_StrukturGeologiProvinsiBengkulu_9);
+        function pop_KegempaanProvinsiBengkulu_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Skor</th>\
+                        <td>' + (feature.properties['Skor'] !== null ? autolinker.link(String(feature.properties['Skor']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KegempaanProvinsiBengkulu_10_0() {
+            return {
+                pane: 'pane_KegempaanProvinsiBengkulu_10',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,158,23,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_KegempaanProvinsiBengkulu_10');
+        map.getPane('pane_KegempaanProvinsiBengkulu_10').style.zIndex = 410;
+        map.getPane('pane_KegempaanProvinsiBengkulu_10').style['mix-blend-mode'] = 'normal';
+        var layer_KegempaanProvinsiBengkulu_10 = new L.geoJson(json_KegempaanProvinsiBengkulu_10, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KegempaanProvinsiBengkulu_10',
+            layerName: 'layer_KegempaanProvinsiBengkulu_10',
+            pane: 'pane_KegempaanProvinsiBengkulu_10',
+            onEachFeature: pop_KegempaanProvinsiBengkulu_10,
+            style: style_KegempaanProvinsiBengkulu_10_0,
+        });
+        bounds_group.addLayer(layer_KegempaanProvinsiBengkulu_10);
+        function pop_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Kelas</th>\
+                        <td>' + (feature.properties['Kelas'] !== null ? autolinker.link(String(feature.properties['Kelas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Kalsifikas</th>\
+                        <td>' + (feature.properties['Kalsifikas'] !== null ? autolinker.link(String(feature.properties['Kalsifikas']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11_0(feature) {
+            switch(String(feature.properties['Kelas'])) {
+                case '1':
+                    return {
+                pane: 'pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '2':
+                    return {
+                pane: 'pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11');
+        map.getPane('pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11').style.zIndex = 411;
+        map.getPane('pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11').style['mix-blend-mode'] = 'normal';
+        var layer_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11 = new L.geoJson(json_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11',
+            layerName: 'layer_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11',
+            pane: 'pane_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11',
+            onEachFeature: pop_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11,
+            style: style_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11_0,
+        });
+        bounds_group.addLayer(layer_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11);
+        map.addLayer(layer_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11);
+        function pop_KegempaanBerdasarkanDampak_12(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">eventTime</th>\
+                        <td>' + (feature.properties['eventTime'] !== null ? autolinker.link(String(feature.properties['eventTime']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Shape__Are</th>\
+                        <td class="visible-with-data" id="Shape__Are">' + (feature.properties['Shape__Are'] !== null ? autolinker.link(String(feature.properties['Shape__Are']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Skor</th>\
+                        <td>' + (feature.properties['Skor'] !== null ? autolinker.link(String(feature.properties['Skor']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">MMI</th>\
+                        <td>' + (feature.properties['MMI'] !== null ? autolinker.link(String(feature.properties['MMI']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Keterangan</th>\
+                        <td>' + (feature.properties['Keterangan'] !== null ? autolinker.link(String(feature.properties['Keterangan']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KegempaanBerdasarkanDampak_12_0(feature) {
+            switch(String(feature.properties['MMI'])) {
+                case 'IV (Light)':
+                    return {
+                pane: 'pane_KegempaanBerdasarkanDampak_12',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(64,64,64,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'V (Moderate)':
+                    return {
+                pane: 'pane_KegempaanBerdasarkanDampak_12',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(202,0,32,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_KegempaanBerdasarkanDampak_12');
+        map.getPane('pane_KegempaanBerdasarkanDampak_12').style.zIndex = 412;
+        map.getPane('pane_KegempaanBerdasarkanDampak_12').style['mix-blend-mode'] = 'normal';
+        var layer_KegempaanBerdasarkanDampak_12 = new L.geoJson(json_KegempaanBerdasarkanDampak_12, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KegempaanBerdasarkanDampak_12',
+            layerName: 'layer_KegempaanBerdasarkanDampak_12',
+            pane: 'pane_KegempaanBerdasarkanDampak_12',
+            onEachFeature: pop_KegempaanBerdasarkanDampak_12,
+            style: style_KegempaanBerdasarkanDampak_12_0,
+        });
+        bounds_group.addLayer(layer_KegempaanBerdasarkanDampak_12);
+        map.addLayer(layer_KegempaanBerdasarkanDampak_12);
+        function pop_Titikgempa_13(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">place</th>\
+                        <td>' + (feature.properties['place'] !== null ? autolinker.link(String(feature.properties['place']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">eventTime</th>\
+                        <td>' + (feature.properties['eventTime'] !== null ? autolinker.link(String(feature.properties['eventTime']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Magnitudo</th>\
+                        <td>' + (feature.properties['Magnitudo'] !== null ? autolinker.link(String(feature.properties['Magnitudo']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Titikgempa_13_0() {
+            return {
+                pane: 'pane_Titikgempa_13',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,89,137,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Titikgempa_13');
+        map.getPane('pane_Titikgempa_13').style.zIndex = 413;
+        map.getPane('pane_Titikgempa_13').style['mix-blend-mode'] = 'normal';
+        var layer_Titikgempa_13 = new L.geoJson(json_Titikgempa_13, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Titikgempa_13',
+            layerName: 'layer_Titikgempa_13',
+            pane: 'pane_Titikgempa_13',
+            onEachFeature: pop_Titikgempa_13,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Titikgempa_13_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Titikgempa_13);
+        map.addLayer(layer_Titikgempa_13);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: '<img src="legend/Titikgempa_13.png" /> Titik gempa', layer: layer_Titikgempa_13},
+            {label: 'Kegempaan Berdasarkan Dampak<br /><table><tr><td style="text-align: center;"><img src="legend/KegempaanBerdasarkanDampak_12_IVLight0.png" /></td><td>IV (Light)</td></tr><tr><td style="text-align: center;"><img src="legend/KegempaanBerdasarkanDampak_12_VModerate1.png" /></td><td>V (Moderate)</td></tr></table>', layer: layer_KegempaanBerdasarkanDampak_12},
+            {label: 'Tingkat Risiko Kawasan Rawan Gempa Bumi Provinsi Bengkulu<br /><table><tr><td style="text-align: center;"><img src="legend/TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11_10.png" /></td><td>1</td></tr><tr><td style="text-align: center;"><img src="legend/TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11_21.png" /></td><td>2</td></tr></table>', layer: layer_TingkatRisikoKawasanRawanGempaBumiProvinsiBengkulu_11},
+            {label: '<img src="legend/KegempaanProvinsiBengkulu_10.png" /> Kegempaan Provinsi Bengkulu', layer: layer_KegempaanProvinsiBengkulu_10},
+            {label: 'Struktur Geologi Provinsi Bengkulu<br /><table><tr><td style="text-align: center;"><img src="legend/StrukturGeologiProvinsiBengkulu_9_10.png" /></td><td>1</td></tr><tr><td style="text-align: center;"><img src="legend/StrukturGeologiProvinsiBengkulu_9_21.png" /></td><td>2</td></tr><tr><td style="text-align: center;"><img src="legend/StrukturGeologiProvinsiBengkulu_9_42.png" /></td><td>4</td></tr></table>', layer: layer_StrukturGeologiProvinsiBengkulu_9},
+            {label: 'Kelerengan Provinsi Bengkulu<br /><table><tr><td style="text-align: center;"><img src="legend/KelerenganProvinsiBengkulu_8_10.png" /></td><td>1</td></tr><tr><td style="text-align: center;"><img src="legend/KelerenganProvinsiBengkulu_8_21.png" /></td><td>2</td></tr><tr><td style="text-align: center;"><img src="legend/KelerenganProvinsiBengkulu_8_32.png" /></td><td>3</td></tr></table>', layer: layer_KelerenganProvinsiBengkulu_8},
+            {label: 'Geologi Provinsi Bengkulu<br /><table><tr><td style="text-align: center;"><img src="legend/GeologiProvinsiBengkulu_7_20.png" /></td><td>2</td></tr><tr><td style="text-align: center;"><img src="legend/GeologiProvinsiBengkulu_7_41.png" /></td><td>4</td></tr></table>', layer: layer_GeologiProvinsiBengkulu_7},
+            {label: "Tingkat Risiko Kawasan Rawan Gempa Bumi Provinsi", layer: layer_TingkatRisikoKawasanRawanGempaBumiProvinsi_6},
+            {label: "Kerawanan Gempa Bumi Provinsi Bengkulu", layer: layer_KerawananGempaBumiProvinsiBengkulu_5},
+            {label: "Kegempaan Provinsi Bengkulu", layer: layer_KegempaanProvinsiBengkulu_4},
+            {label: "Struktur Geologi Provinsi Bengkulu", layer: layer_StrukturGeologiProvinsiBengkulu_3},
+            {label: "Kelerengan Provinsi Bengkulu", layer: layer_KelerenganProvinsiBengkulu_2},
+            {label: "Geologi Provinsi Bengkulu", layer: layer_GeologiProvinsiBengkulu_1},
+            {label: "Google Terrain", layer: layer_GoogleTerrain_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        </script>
+    </body>
+</html>
